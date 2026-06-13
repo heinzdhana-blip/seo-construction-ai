@@ -71,7 +71,10 @@ st.markdown("""
 
 # ==================== CONFIGURACIÓN DE GEMINI ====================
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-flash")
+
+# Lista de modelos disponibles (usar gemini-1.5-pro que es más estable)
+# Opciones: "gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"
+model = genai.GenerativeModel("gemini-pro")  # Modelo más compatible
 
 # ==================== HEADER PRINCIPAL ====================
 st.title("🏗️ SEO Multi-Agent Optimization Platform")
@@ -96,6 +99,9 @@ with st.sidebar:
     
     st.divider()
     st.caption("Powered by Google Gemini AI")
+    
+    # Mostrar modelo actual
+    st.info(f"🤖 Modelo activo: **gemini-pro**")
 
 # ==================== FORMULARIO DE ENTRADA ====================
 st.markdown("## 🧱 Business Input Panel")
@@ -177,6 +183,7 @@ if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
             st.markdown(response.text)
         except Exception as e:
             st.error(f"❌ Error al conectar con Gemini: {e}")
+            st.info("💡 Sugerencia: Verifica tu API key en .streamlit/secrets.toml")
     
     st.markdown('</div>', unsafe_allow_html=True)
     
@@ -265,6 +272,7 @@ if user_input:
         bot_response = response.text
     except Exception as e:
         bot_response = f"❌ Error al conectar con Gemini: {e}"
+        bot_response += "\n\n💡 Verifica que tu API key sea válida en .streamlit/secrets.toml"
     
     # Guardar respuesta del asistente
     st.session_state.messages.append({"role": "assistant", "content": bot_response})
