@@ -1,5 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
+import random
 
 # Configuración de la página
 st.set_page_config(
@@ -86,16 +87,21 @@ if st.button("🚀 Run AI SEO Analysis"):
     except Exception as e:
         st.error(f"Error al conectar con Gemini: {e}")
     
-    # Métricas
+    # Métricas con valores aleatorios
     st.header("📊 Monitoring Metrics")
+    
+    # Generar métricas aleatorias
+    seo_score = random.randint(75, 98)
+    ctr = round(random.uniform(2.5, 8.5), 2)
+    visits = random.randint(800, 5000)
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.metric("SEO Score", "82")
+        st.metric("SEO Score", seo_score)
     
     with col2:
-        st.metric("CTR", "4.2%")
+        st.metric("CTR", f"{ctr}%")
     
     with col3:
-        st.metric("Organic Visits", "1540")
+        st.metric("Organic Visits", visits)
