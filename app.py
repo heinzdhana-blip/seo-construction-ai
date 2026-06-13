@@ -54,5 +54,5 @@ st.write("How long does the project take?")
 st.header("Monitoring Metrics")
 st.metric("SEO Score", "82")
 st.metric("CTR", "4.2%")
-st.metric("Organic Visits", "1,540")
+st.metric("Organic Visits", "1540")
 ```
