@@ -1,10 +1,14 @@
 import streamlit as st
+import google.generativeai as genai
 
 st.set_page_config(
     page_title="SEO Construction AI",
     page_icon="🏗️",
     layout="wide"
 )
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.title("SEO Multi-Agent Optimization Platform")
 
@@ -41,8 +45,28 @@ if st.button("🚀 Run AI SEO Analysis"):
     st.write(f"best {service} {city}")
     st.write(f"{service} near me")
     
-    st.header("SEO Title")
-    st.success(f"{company} | Professional {service} in {city}")
+prompt = f"""
+Actúa como un experto SEO.
+
+Empresa: {company}
+Servicio: {service}
+Ciudad: {city}
+
+Genera:
+
+1. SEO Title
+2. Meta Description
+3. 5 palabras clave SEO
+4. FAQ con 3 preguntas frecuentes
+
+Respuesta en español.
+"""
+
+response = model.generate_content(prompt)
+
+st.header("Contenido generado por Gemini")
+st.write(response.text)
+
     
     st.header("Meta Description")
     st.info(
