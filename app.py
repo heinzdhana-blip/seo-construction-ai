@@ -72,9 +72,19 @@ st.markdown("""
 # ==================== CONFIGURACIÓN DE GEMINI ====================
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-# Lista de modelos disponibles (usar gemini-1.5-pro que es más estable)
-# Opciones: "gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"
-model = genai.GenerativeModel("gemini-pro")  # Modelo más compatible
+# Lista de modelos disponibles (usar el más reciente y estable)
+# Opciones correctas: "models/gemini-1.5-flash", "models/gemini-1.5-pro"
+# Nota: Algunas versiones requieren el prefijo "models/"
+try:
+    # Intentar con el modelo más reciente
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
+except Exception as e:
+    try:
+        # Fallback a versión pro
+        model = genai.GenerativeModel("models/gemini-1.5-pro")
+    except Exception as e:
+        # Último fallback
+        model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
 # ==================== HEADER PRINCIPAL ====================
 st.title("🏗️ SEO Multi-Agent Optimization Platform")
@@ -100,8 +110,16 @@ with st.sidebar:
     st.divider()
     st.caption("Powered by Google Gemini AI")
     
-    # Mostrar modelo actual
-    st.info(f"🤖 Modelo activo: **gemini-pro**")
+    # Mostrar información del modelo
+    st.info("🤖 **Modelo activo:** gemini-1.5-flash")
+    
+    # Botón para probar la conexión
+    if st.button("🔌 Probar conexión Gemini"):
+        try:
+            test_response = model.generate_content("Di 'Conexión exitosa'")
+            st.success("✅ Conexión exitosa con Gemini API")
+        except Exception as e:
+            st.error(f"❌ Error de conexión: {e}")
 
 # ==================== FORMULARIO DE ENTRADA ====================
 st.markdown("## 🧱 Business Input Panel")
@@ -183,7 +201,7 @@ if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
             st.markdown(response.text)
         except Exception as e:
             st.error(f"❌ Error al conectar con Gemini: {e}")
-            st.info("💡 Sugerencia: Verifica tu API key en .streamlit/secrets.toml")
+            st.info("💡 **Soluciones:**\n1. Verifica tu API key en .streamlit/secrets.toml\n2. Asegúrate de tener créditos en Google AI Studio\n3. Prueba reiniciar la aplicación")
     
     st.markdown('</div>', unsafe_allow_html=True)
     
@@ -272,7 +290,7 @@ if user_input:
         bot_response = response.text
     except Exception as e:
         bot_response = f"❌ Error al conectar con Gemini: {e}"
-        bot_response += "\n\n💡 Verifica que tu API key sea válida en .streamlit/secrets.toml"
+        bot_response += "\n\n💡 **Soluciones rápidas:**\n• Verifica tu conexión a internet\n• Comprueba que la API key sea válida\n• Espera unos segundos y reintenta"
     
     # Guardar respuesta del asistente
     st.session_state.messages.append({"role": "assistant", "content": bot_response})
@@ -284,6 +302,8 @@ if user_input:
     st.rerun()
 
 # Botón para limpiar el historial del chat
-if st.button("🗑️ Limpiar historial del chat"):
-    st.session_state.messages = []
-    st.rerun()
+col_clear1, col_clear2, col_clear3 = st.columns([1, 2, 1])
+with col_clear2:
+    if st.button("🗑️ Limpiar historial del chat", use_container_width=True):
+        st.session_state.messages = []
+        st.rerun()
