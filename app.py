@@ -73,11 +73,11 @@ st.markdown("""
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 # Lista de modelos disponibles (usar el más reciente y estable)
-# Opciones correctas: "models/gemini-1.5-flash", "models/gemini-1.5-pro"
+# Opciones correctas: "models/gemini-1.5-flash", "models/gemini-2.5-pro"
 # Nota: Algunas versiones requieren el prefijo "models/"
 try:
     # Intentar con el modelo más reciente
-    model = genai.GenerativeModel("models/gemini-1.5-flash")
+    model = genai.GenerativeModel("models/gemini-2.5-flash")
 except Exception as e:
     try:
         # Fallback a versión pro
