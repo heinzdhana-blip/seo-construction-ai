@@ -6,8 +6,14 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🏗️ SEO Construction AI")
-st.subheader("Sistema Multiagente para Optimización SEO")
+st.title("SEO Multi-Agent Optimization Platform")
+
+st.markdown("""
+### Intelligent SEO Optimization for Construction SMEs
+
+This platform uses a collaborative multi-agent architecture to analyze,
+generate and optimize SEO strategies for construction companies.
+""")
 
 with st.sidebar:
     st.header("AI Agents")
@@ -19,10 +25,10 @@ with st.sidebar:
     st.success("✅ Technical Review Agent")
     st.success("✅ Monitoring Agent")
 
-company = st.text_input("Company Name")
-service = st.text_input("Service Offered")
-city = st.text_input("City")
-url = st.text_input("Website URL")
+company = st.text_input("Nombre de la Empresa")
+service = st.text_input("Servicio Ofrecido")
+city = st.text_input("Ciudad")
+url = st.text_input("Sitio Web")
 
 if st.button("🚀 Run AI SEO Analysis"):
     st.header("SEO Problems Found")
