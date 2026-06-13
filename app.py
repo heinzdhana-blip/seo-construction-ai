@@ -57,10 +57,10 @@ st.markdown("""
 
 # Configuración de Gemini
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-pro")
 
 # Título principal
-st.title("🏗️ SEO Multi-Agent Optimization Platform")
+st.title("SEO Multi-Agent Optimization Platform")
 
 st.markdown("""
 ### Intelligent SEO Optimization for Construction SMEs
