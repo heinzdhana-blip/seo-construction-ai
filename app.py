@@ -81,7 +81,7 @@ try:
 except Exception as e:
     try:
         # Fallback a versión pro
-        model = genai.GenerativeModel("models/gemini-1.5-pro")
+        model = genai.GenerativeModel("models/gemini-2.5-pro")
     except Exception as e:
         # Último fallback
         model = genai.GenerativeModel("gemini-1.5-flash-latest")
