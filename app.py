@@ -119,152 +119,166 @@ with st.sidebar:
     st.success("✅ Content Generator Agent")
     st.success("✅ Technical Review Agent")
     st.success("✅ Monitoring Agent")
-    st.success("✅ Human Reviewer")  # <-- AGENTE HUMANO AGREGADO
+    st.success("✅ Human Reviewer")
 
-# ==================== INPUTS ====================
-st.markdown("## 🧱 Business Input Panel")
+# ==================== MAIN LAYOUT ====================
 
-col1, col2 = st.columns(2)
+main_col, chat_col = st.columns([3, 1])
 
-with col1:
-    company = st.text_input("🏢 Empresa")
-    city = st.text_input("📍 Ciudad")
+with main_col:
 
-with col2:
-    service = st.text_input("🛠️ Servicio")
-    url = st.text_input("🌐 Web")
+    st.markdown("## 🧱 Business Input Panel")
 
-# ==================== ANALYSIS ====================
-if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
+    col1, col2 = st.columns(2)
 
-    if not company or not service or not city:
-        st.error("Completa los campos")
-        st.stop()
+    with col1:
+        company = st.text_input("🏢 Empresa")
+        city = st.text_input("📍 Ciudad")
 
-    st.markdown("## 🔍 SEO Analysis")
+    with col2:
+        service = st.text_input("🛠️ Servicio")
+        url = st.text_input("🌐 Web")
 
-    st.warning("Missing meta description")
-    st.warning("Low content length")
-    st.warning("Missing structured data")
+    # ==================== ANALYSIS ====================
+    if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
 
-    st.markdown("## 📈 Keywords")
+        if not company or not service or not city:
+            st.error("Completa los campos")
+            st.stop()
 
-    st.info(f"{service} {city}")
-    st.info(f"best {service} {city}")
-    st.info(f"{service} near me")
+        st.markdown("## 🔍 SEO Analysis")
 
-    prompt = f"""
-    SEO expert.
+        st.warning("Missing meta description")
+        st.warning("Low content length")
+        st.warning("Missing structured data")
 
-    Empresa: {company}
-    Servicio: {service}
-    Ciudad: {city}
-    Web: {url}
+        st.markdown("## 📈 Keywords")
 
-    Genera SEO completo.
-    """
+        st.info(f"{service} {city}")
+        st.info(f"best {service} {city}")
+        st.info(f"{service} near me")
 
-    st.markdown("## 🤖 AI Content")
+        prompt = f"""
+        SEO expert.
 
-    try:
-        response = model.generate_content(prompt)
-        generated_content = response.text
-        st.session_state.generated_content = generated_content
-        st.write(generated_content)
-    except Exception as e:
-        st.error(e)
-        st.stop()
+        Empresa: {company}
+        Servicio: {service}
+        Ciudad: {city}
+        Web: {url}
 
-    # ==================== HUMAN REVIEW SECTION ====================
-    st.markdown("## 👨‍💼 Human Review & Approval")
+        Genera SEO completo.
+        """
 
-    approval = st.radio(
-        "Estado de revisión del contenido",
-        [
-            "⏳ Pendiente de revisión",
-            "✅ Aprobado para publicación",
-            "❌ Rechazado"
-        ],
-        horizontal=True
-    )
+        st.markdown("## 🤖 AI Content")
 
-    review_notes = st.text_area(
-        "Observaciones del revisor",
-        placeholder="Ingrese comentarios, correcciones o recomendaciones..."
-    )
+        try:
+            response = model.generate_content(prompt)
+            generated_content = response.text
+            st.session_state.generated_content = generated_content
+            st.write(generated_content)
+        except Exception as e:
+            st.error(e)
+            st.stop()
 
-    if approval == "✅ Aprobado para publicación":
-        st.success("Contenido aprobado para ser incorporado al sitio web.")
+        # ==================== HUMAN REVIEW SECTION ====================
+        st.markdown("## 👨‍💼 Human Review & Approval")
 
-    elif approval == "❌ Rechazado":
-        st.error("Contenido rechazado. Requiere modificaciones antes de publicarse.")
+        approval = st.radio(
+            "Estado de revisión del contenido",
+            [
+                "⏳ Pendiente de revisión",
+                "✅ Aprobado para publicación",
+                "❌ Rechazado"
+            ],
+            horizontal=True
+        )
+
+        review_notes = st.text_area(
+            "Observaciones del revisor",
+            placeholder="Ingrese comentarios, correcciones o recomendaciones..."
+        )
+
+        if approval == "✅ Aprobado para publicación":
+            st.success("Contenido aprobado para ser incorporado al sitio web.")
+
+        elif approval == "❌ Rechazado":
+            st.error("Contenido rechazado. Requiere modificaciones antes de publicarse.")
+
+        else:
+            st.warning("Esperando validación humana.")
+
+        # ==================== METRICS DASHBOARD ====================
+        seo_score = random.randint(75, 98)
+        ctr = round(random.uniform(2.5, 8.5), 2)
+        visits = random.randint(800, 5000)
+        conversion = round(visits * (ctr / 100))
+
+        st.markdown("## 📊 Dashboard")
+
+        c1, c2, c3, c4 = st.columns(4)
+
+        with c1:
+            st.metric("SEO Score", seo_score)
+
+        with c2:
+            st.metric("CTR", f"{ctr}%")
+
+        with c3:
+            st.metric("Visits", visits)
+
+        with c4:
+            st.metric("Conversions", conversion)
 
     else:
-        st.warning("Esperando validación humana.")
+        st.info("Completa los datos para empezar")
 
-    # ==================== METRICS DASHBOARD ====================
-    seo_score = random.randint(75, 98)
-    ctr = round(random.uniform(2.5, 8.5), 2)
-    visits = random.randint(800, 5000)
-    conversion = round(visits * (ctr / 100))
+with chat_col:
 
-    st.markdown("## 📊 Dashboard")
+    st.markdown("## 💬 SEO Assistant")
 
-    c1, c2, c3, c4 = st.columns(4)
+    st.info(
+        "Pregúntale al asistente sobre SEO, palabras clave, contenido o estrategias."
+    )
 
-    with c1:
-        st.metric("SEO Score", seo_score)
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.write(msg["content"])
 
-    with c2:
-        st.metric("CTR", f"{ctr}%")
+    user_input = st.chat_input("Pregunta al SEO Assistant...")
 
-    with c3:
-        st.metric("Visits", visits)
+    if user_input:
 
-    with c4:
-        st.metric("Conversions", conversion)
+        st.session_state.messages.append(
+            {"role": "user", "content": user_input}
+        )
 
-else:
-    st.info("Completa los datos para empezar")
+        chat_prompt = f"""
+        Eres un consultor SEO experto.
 
-# ==================== CHATBOT ====================
-st.markdown("## 💬 SEO Assistant Chatbot")
+        Empresa: {company}
+        Servicio: {service}
+        Ciudad: {city}
 
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.write(msg["content"])
+        Contenido generado:
+        {st.session_state.generated_content}
 
-user_input = st.chat_input("Pregunta al SEO Assistant...")
+        Pregunta:
+        {user_input}
+        """
 
-if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
+        try:
+            response = model.generate_content(chat_prompt)
+            bot_response = response.text
 
-    with st.chat_message("user"):
-        st.write(user_input)
+        except Exception as e:
+            bot_response = str(e)
 
-    chat_prompt = f"""
-    Eres experto SEO.
+        st.session_state.messages.append(
+            {"role": "assistant", "content": bot_response}
+        )
 
-    Empresa: {company}
-    Servicio: {service}
-    Ciudad: {city}
+        st.rerun()
 
-    Pregunta: {user_input}
-    """
-
-    try:
-        response = model.generate_content(chat_prompt)
-        bot_response = response.text
-    except Exception as e:
-        bot_response = str(e)
-
-    st.session_state.messages.append({"role": "assistant", "content": bot_response})
-
-    with st.chat_message("assistant"):
-        st.write(bot_response)
-
-    st.rerun()
-
-if st.button("🗑️ Limpiar chat"):
-    st.session_state.messages = []
-    st.rerun()
+    if st.button("🗑️ Limpiar chat"):
+        st.session_state.messages = []
+        st.rerun()
