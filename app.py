@@ -2,90 +2,87 @@ import streamlit as st
 import google.generativeai as genai
 import random
 
-# ==================== CONFIGURACIÓN DE LA PÁGINA ====================
+# ==================== CONFIGURACIÓN ====================
 st.set_page_config(
     page_title="SEO Construction AI",
     page_icon="🏗️",
     layout="wide"
 )
 
-# ==================== BACKGROUND IMAGE + OVERLAY ====================
+# ==================== CHAT MEMORY ====================
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# ==================== CSS ====================
 st.markdown("""
 <style>
-    .stApp {
+
+    /* ===== HERO (MITAD PANTALLA) ===== */
+    .hero {
+        height: 45vh;
         background: url("https://riobrancoperu.com.pe/wp-content/uploads/2015/01/construccion-1100x420.jpg");
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border-radius: 0 0 25px 25px;
+        overflow: hidden;
     }
 
-    .stApp::before {
+    .hero::before {
         content: "";
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         background: rgba(0,0,0,0.55);
-        z-index: 0;
     }
 
-    .main {
+    .hero h1, .hero p {
         position: relative;
         z-index: 1;
+        color: #0b2a4a;
+        text-align: center;
     }
 
-    /* ==================== BENTO DESIGN ==================== */
+    /* ===== TEXTO GENERAL AZUL OSCURO ===== */
+    h1, h2, h3, p, label {
+        color: #0b2a4a !important;
+    }
+
+    /* ===== BENTO CARDS ===== */
     .bento-card {
-        background: linear-gradient(135deg, #1e1e2f 0%, #2a2a3a 100%);
+        background: rgba(255,255,255,0.88);
         border-radius: 20px;
         padding: 1.5rem;
         margin: 0.5rem 0;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        border: 1px solid rgba(255,255,255,0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .bento-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
     .section-container {
-        background: rgba(30,30,47,0.5);
+        background: rgba(255,255,255,0.7);
         border-radius: 25px;
         padding: 1rem;
         margin: 1rem 0;
         backdrop-filter: blur(10px);
     }
 
+    /* BOTÓN */
     .stButton > button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
         border: none;
         padding: 0.75rem 2rem;
-        font-weight: bold;
         border-radius: 30px;
-        transition: all 0.3s ease;
         width: 100%;
     }
 
-    .stButton > button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(102,126,234,0.4);
-    }
-
-    h1, h2, h3 {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
 </style>
 """, unsafe_allow_html=True)
-
-# ==================== INICIALIZAR CHAT ====================
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 
 # ==================== GEMINI ====================
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -98,25 +95,23 @@ except:
     except:
         model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
-# ==================== HEADER ====================
-st.title("🏗️ SEO Multi-Agent Optimization Platform")
-
+# ==================== HERO ====================
 st.markdown("""
-### Intelligent SEO Optimization for Construction SMEs
-This platform uses a collaborative multi-agent architecture to analyze,
-generate and optimize SEO strategies for construction companies.
-""")
+<div class="hero">
+    <div>
+        <h1>🏗️ SEO Multi-Agent Optimization Platform</h1>
+        <p>Intelligent SEO Optimization for Construction SMEs</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.header("🤖 AI Agents")
-    st.success("✅ Orchestrator Agent")
-    st.success("✅ SEO Diagnostic Agent")
-    st.success("✅ Context Analysis Agent")
-    st.success("✅ Prompt Generator Agent")
-    st.success("✅ Content Generator Agent")
-    st.success("✅ Technical Review Agent")
-    st.success("✅ Monitoring Agent")
+    st.success("Orchestrator")
+    st.success("SEO Agent")
+    st.success("Content Agent")
+    st.success("Monitoring")
 
 # ==================== INPUTS ====================
 st.markdown("## 🧱 Business Input Panel")
@@ -124,42 +119,44 @@ st.markdown("## 🧱 Business Input Panel")
 col1, col2 = st.columns(2)
 
 with col1:
-    company = st.text_input("🏢 Nombre de la Empresa")
+    company = st.text_input("🏢 Empresa")
     city = st.text_input("📍 Ciudad")
 
 with col2:
-    service = st.text_input("🛠️ Servicio Ofrecido")
-    url = st.text_input("🌐 Sitio Web")
+    service = st.text_input("🛠️ Servicio")
+    url = st.text_input("🌐 Web")
 
-# ==================== MAIN BUTTON ====================
+# ==================== ANALYSIS ====================
 if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
 
     if not company or not service or not city:
         st.error("Completa los campos")
         st.stop()
 
-    st.subheader("🔍 SEO Problems Found")
+    st.markdown("## 🔍 SEO Analysis")
+
     st.warning("Missing meta description")
     st.warning("Low content length")
     st.warning("Missing structured data")
 
-    st.subheader("📈 Suggested Keywords")
+    st.markdown("## 📈 Keywords")
+
     st.info(f"{service} {city}")
     st.info(f"best {service} {city}")
     st.info(f"{service} near me")
 
     prompt = f"""
-    SEO expert for construction companies.
+    SEO expert.
 
     Empresa: {company}
     Servicio: {service}
     Ciudad: {city}
     Web: {url}
 
-    Genera SEO completo en español.
+    Genera SEO completo.
     """
 
-    st.subheader("🤖 AI Generated Content")
+    st.markdown("## 🤖 AI Content")
 
     try:
         response = model.generate_content(prompt)
@@ -172,24 +169,24 @@ if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
     visits = random.randint(800, 5000)
     conversion = round(visits * (ctr / 100))
 
-    st.subheader("📊 Dashboard")
+    st.markdown("## 📊 Dashboard")
 
-    col1, col2, col3, col4 = st.columns(4)
+    c1, c2, c3, c4 = st.columns(4)
 
-    with col1:
+    with c1:
         st.metric("SEO Score", seo_score)
 
-    with col2:
+    with c2:
         st.metric("CTR", f"{ctr}%")
 
-    with col3:
+    with c3:
         st.metric("Visits", visits)
 
-    with col4:
+    with c4:
         st.metric("Conversions", conversion)
 
 else:
-    st.info("Completa los datos para comenzar")
+    st.info("Completa los datos para empezar")
 
 # ==================== CHATBOT ====================
 st.markdown("## 💬 SEO Assistant Chatbot")
@@ -207,7 +204,7 @@ if user_input:
         st.write(user_input)
 
     chat_prompt = f"""
-    Eres un experto SEO en construcción.
+    Eres experto SEO.
 
     Empresa: {company}
     Servicio: {service}
