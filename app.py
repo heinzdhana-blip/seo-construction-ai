@@ -44,7 +44,7 @@ st.markdown("""
     .hero h1, .hero p {
         position: relative;
         z-index: 1;
-        color: #0b2a4a;
+        color: white !important;
         text-align: center;
     }
 
