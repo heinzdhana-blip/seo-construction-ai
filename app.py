@@ -108,10 +108,13 @@ st.markdown("""
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.header("🤖 AI Agents")
-    st.success("Orchestrator")
-    st.success("SEO Agent")
-    st.success("Content Agent")
-    st.success("Monitoring")
+    st.success("✅ Orchestrator Agent")
+    st.success("✅ SEO Diagnostic Agent")
+    st.success("✅ Context Analysis Agent")
+    st.success("✅ Prompt Generator Agent")
+    st.success("✅ Content Generator Agent")
+    st.success("✅ Technical Review Agent")
+    st.success("✅ Monitoring Agent")
 
 # ==================== INPUTS ====================
 st.markdown("## 🧱 Business Input Panel")
