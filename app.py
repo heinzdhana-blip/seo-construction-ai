@@ -1,5 +1,6 @@
+```python
 import streamlit as st
-import google.generativeai as genai
+import ollama
 import random
 
 # ==================== CONFIGURACIÓN DE LA PÁGINA ====================
@@ -9,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== HERO SECTION (MITAD DE PANTALLA) ====================
+# ==================== HERO SECTION ====================
 st.markdown("""
 <div class="hero-section">
     <h1>🏗️ SEO Multi-Agent Optimization Platform</h1>
@@ -40,14 +41,10 @@ st.markdown("""
     border-radius: 0 0 30px 30px;
 }
 
-/* overlay oscuro */
 .hero-section::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0,0,0,0.55);
     border-radius: 0 0 30px 30px;
 }
@@ -59,13 +56,12 @@ st.markdown("""
 }
 
 .hero-section h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     margin-bottom: 10px;
 }
 
 .hero-section p {
-    font-size: 1.2rem;
-    opacity: 0.9;
+    font-size: 1.3rem;
 }
 
 /* BENTO DESIGN */
@@ -109,16 +105,8 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-# ==================== GEMINI ====================
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-try:
-    model = genai.GenerativeModel("models/gemini-2.5-flash")
-except:
-    try:
-        model = genai.GenerativeModel("models/gemini-2.5-pro")
-    except:
-        model = genai.GenerativeModel("gemini-1.5-flash-latest")
+# ==================== OLLAMA ====================
+LLAMA_MODEL = "llama3"
 
 # ==================== INPUTS ====================
 st.markdown("## 🧱 Business Input Panel")
@@ -133,7 +121,7 @@ with col2:
     service = st.text_input("🛠️ Servicio Ofrecido")
     url = st.text_input("🌐 Sitio Web")
 
-# ==================== BOTÓN ====================
+# ==================== BOTÓN SEO ====================
 if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
 
     if not company or not service or not city:
@@ -151,23 +139,43 @@ if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
     st.info(f"{service} near me")
 
     prompt = f"""
-    SEO experto para construcción.
+Eres un consultor SEO experto en empresas constructoras.
 
-    Empresa: {company}
-    Servicio: {service}
-    Ciudad: {city}
-    Web: {url}
+Analiza:
 
-    Genera SEO completo en español.
-    """
+Empresa: {company}
+Servicio: {service}
+Ciudad: {city}
+Sitio Web: {url}
+
+Genera:
+
+1. Auditoría SEO
+2. Palabras clave recomendadas
+3. Meta descripción
+4. Título SEO
+5. Estrategia de contenido
+6. Recomendaciones técnicas
+7. Plan de mejora
+"""
 
     st.subheader("🤖 AI Generated Content")
 
     try:
-        response = model.generate_content(prompt)
-        st.write(response.text)
+        response = ollama.chat(
+            model=LLAMA_MODEL,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+
+        st.write(response["message"]["content"])
+
     except Exception as e:
-        st.error(e)
+        st.error(f"Error conectando con Ollama: {e}")
 
     seo_score = random.randint(75, 98)
     ctr = round(random.uniform(2.5, 8.5), 2)
@@ -176,18 +184,18 @@ if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
 
     st.subheader("📊 Dashboard")
 
-    col1, col2, col3, col4 = st.columns(4)
+    c1, c2, c3, c4 = st.columns(4)
 
-    with col1:
+    with c1:
         st.metric("SEO Score", seo_score)
 
-    with col2:
+    with c2:
         st.metric("CTR", f"{ctr}%")
 
-    with col3:
+    with c3:
         st.metric("Visits", visits)
 
-    with col4:
+    with c4:
         st.metric("Conversions", conversion)
 
 else:
@@ -203,31 +211,56 @@ for msg in st.session_state.messages:
 user_input = st.chat_input("Pregunta al SEO Assistant...")
 
 if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": user_input
+        }
+    )
 
     chat_prompt = f"""
-    Eres experto SEO.
+Eres un experto SEO especializado en construcción.
 
-    Empresa: {company}
-    Servicio: {service}
-    Ciudad: {city}
+Empresa: {company}
+Servicio: {service}
+Ciudad: {city}
 
-    Pregunta: {user_input}
-    """
+Pregunta del usuario:
+{user_input}
+"""
 
     try:
-        response = model.generate_content(chat_prompt)
-        bot_response = response.text
-    except Exception as e:
-        bot_response = str(e)
 
-    st.session_state.messages.append({"role": "assistant", "content": bot_response})
+        response = ollama.chat(
+            model=LLAMA_MODEL,
+            messages=[
+                {
+                    "role": "user",
+                    "content": chat_prompt
+                }
+            ]
+        )
+
+        bot_response = response["message"]["content"]
+
+    except Exception as e:
+        bot_response = f"Error: {e}"
+
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": bot_response
+        }
+    )
 
     with st.chat_message("assistant"):
         st.write(bot_response)
 
     st.rerun()
 
+# ==================== LIMPIAR CHAT ====================
 if st.button("🗑️ Limpiar chat"):
     st.session_state.messages = []
     st.rerun()
+```
