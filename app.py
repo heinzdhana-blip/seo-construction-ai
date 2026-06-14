@@ -16,7 +16,11 @@ if "messages" not in st.session_state:
 if "generated_content" not in st.session_state:
     st.session_state.generated_content = ""
 
-# 🔥 PERSISTENCIA DE INPUTS (CLAVE)
+# 🔥 CONTROL DE FLUJO (CLAVE)
+if "mode" not in st.session_state:
+    st.session_state.mode = "input"
+
+# ==================== INPUT STATE ====================
 if "company" not in st.session_state:
     st.session_state.company = ""
 
@@ -74,10 +78,18 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 st.markdown("""
 <div class="hero">
     <div>
-        <h1>🏗️ SEO Multi-Agent Platform</h1>
+        <h1 class="title">🏗️ SEO Multi-Agent Platform</h1>
         <p>AI SEO Optimization System</p>
     </div>
 </div>
+
+<style>
+.title {
+    font-size: 6rem;  /* 🔥 DOBLE DE GRANDE */
+    font-weight: 800;
+    text-align: center;
+}
+</style>
 """, unsafe_allow_html=True)
 
 # ==================== LAYOUT ====================
@@ -112,18 +124,19 @@ with main_col:
 
     if st.button("🚀 Run AI SEO Analysis"):
 
-        if not st.session_state.company or not st.session_state.service or not st.session_state.city:
+        if not st.session_state.company or not st.session_state.city or not st.session_state.service:
             st.error("Completa todos los campos")
             st.stop()
 
-        st.markdown("## 🔍 SEO Analysis")
+        # 🔥 CAMBIAR MODO (IMPORTANTE)
+        st.session_state.mode = "analyzed"
 
+        st.markdown("## 🔍 SEO Analysis")
         st.warning("Missing meta description")
         st.warning("Low content length")
         st.warning("Missing structured data")
 
         st.markdown("## 📈 Keywords")
-
         st.info(f"{st.session_state.service} {st.session_state.city}")
         st.info(f"best {st.session_state.service} {st.session_state.city}")
         st.info(f"{st.session_state.service} near me")
@@ -143,32 +156,27 @@ with main_col:
             response = model.generate_content(prompt)
             st.session_state.generated_content = response.text
 
-            st.markdown("## 🤖 AI Content")
-            st.write(response.text)
-
         except Exception as e:
             st.error(e)
             st.stop()
 
-        # ================= HUMAN REVIEW =================
+    # ==================== SOLO SE MUESTRA SI YA ANALIZÓ ====================
+    if st.session_state.mode == "analyzed":
+
+        st.markdown("## 🤖 AI Content")
+        st.write(st.session_state.generated_content)
+
         st.markdown("## 👨‍💼 Human Review")
 
         approval = st.radio(
             "Estado",
             ["Pendiente", "Aprobado", "Rechazado"],
-            horizontal=True
+            horizontal=True,
+            key="approval"
         )
 
-        notes = st.text_area("Comentarios")
+        notes = st.text_area("Comentarios", key="notes")
 
-        if approval == "Aprobado":
-            st.success("Contenido aprobado")
-        elif approval == "Rechazado":
-            st.error("Contenido rechazado")
-        else:
-            st.warning("Esperando revisión")
-
-        # ================= DASHBOARD =================
         st.markdown("## 📊 Dashboard")
 
         c1, c2, c3 = st.columns(3)
@@ -219,7 +227,6 @@ with right_col:
                 "content": response.text
             })
 
-            # 🔥 NO ROMPE ESTADO (pero mantiene actualización)
             st.rerun()
 
         if st.button("🗑️ Limpiar chat"):
