@@ -16,10 +16,22 @@ if "messages" not in st.session_state:
 if "generated_content" not in st.session_state:
     st.session_state.generated_content = ""
 
+# 🔥 PERSISTENCIA DE INPUTS (CLAVE)
+if "company" not in st.session_state:
+    st.session_state.company = ""
+
+if "city" not in st.session_state:
+    st.session_state.city = ""
+
+if "service" not in st.session_state:
+    st.session_state.service = ""
+
+if "url" not in st.session_state:
+    st.session_state.url = ""
+
 # ==================== CSS ====================
 st.markdown("""
 <style>
-
 .hero {
     height: 40vh;
     background: url("https://riobrancoperu.com.pe/wp-content/uploads/2015/01/construccion-1100x420.jpg");
@@ -45,21 +57,12 @@ st.markdown("""
     color: white !important;
 }
 
-.bento {
-    background: rgba(255,255,255,0.85);
-    padding: 15px;
-    border-radius: 15px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-    margin: 10px 0;
-}
-
 .stButton > button {
     width: 100%;
     border-radius: 25px;
     background: linear-gradient(135deg,#667eea,#764ba2);
     color: white;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -77,13 +80,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ==================== LAYOUT 3 COLUMNAS ====================
+# ==================== LAYOUT ====================
 left_col, main_col, right_col = st.columns([1.2, 3.5, 1.3])
 
-# ==================== LEFT: AI AGENTS ====================
+# ==================== LEFT ====================
 with left_col:
     with st.expander("🤖 AI Agents", expanded=False):
-
         st.success("Orchestrator Agent")
         st.success("SEO Diagnostic Agent")
         st.success("Context Analysis Agent")
@@ -101,16 +103,16 @@ with main_col:
     col1, col2 = st.columns(2)
 
     with col1:
-        company = st.text_input("Empresa")
-        city = st.text_input("Ciudad")
+        st.session_state.company = st.text_input("Empresa", value=st.session_state.company)
+        st.session_state.city = st.text_input("Ciudad", value=st.session_state.city)
 
     with col2:
-        service = st.text_input("Servicio")
-        url = st.text_input("Web")
+        st.session_state.service = st.text_input("Servicio", value=st.session_state.service)
+        st.session_state.url = st.text_input("Web", value=st.session_state.url)
 
     if st.button("🚀 Run AI SEO Analysis"):
 
-        if not company or not service or not city:
+        if not st.session_state.company or not st.session_state.service or not st.session_state.city:
             st.error("Completa todos los campos")
             st.stop()
 
@@ -122,17 +124,17 @@ with main_col:
 
         st.markdown("## 📈 Keywords")
 
-        st.info(f"{service} {city}")
-        st.info(f"best {service} {city}")
-        st.info(f"{service} near me")
+        st.info(f"{st.session_state.service} {st.session_state.city}")
+        st.info(f"best {st.session_state.service} {st.session_state.city}")
+        st.info(f"{st.session_state.service} near me")
 
         prompt = f"""
         SEO expert.
 
-        Empresa: {company}
-        Servicio: {service}
-        Ciudad: {city}
-        Web: {url}
+        Empresa: {st.session_state.company}
+        Servicio: {st.session_state.service}
+        Ciudad: {st.session_state.city}
+        Web: {st.session_state.url}
 
         Genera SEO completo profesional.
         """
@@ -178,7 +180,7 @@ with main_col:
         with c3:
             st.metric("Visits", random.randint(1000,5000))
 
-# ==================== RIGHT: CHAT ====================
+# ==================== CHAT ====================
 with right_col:
 
     with st.expander("💬 SEO Assistant", expanded=True):
@@ -199,9 +201,9 @@ with right_col:
             chat_prompt = f"""
             Eres experto SEO.
 
-            Empresa: {company}
-            Servicio: {service}
-            Ciudad: {city}
+            Empresa: {st.session_state.company}
+            Servicio: {st.session_state.service}
+            Ciudad: {st.session_state.city}
 
             Contexto:
             {st.session_state.generated_content}
@@ -211,13 +213,13 @@ with right_col:
             """
 
             response = model.generate_content(chat_prompt)
-            bot_response = response.text
 
             st.session_state.messages.append({
                 "role": "assistant",
-                "content": bot_response
+                "content": response.text
             })
 
+            # 🔥 NO ROMPE ESTADO (pero mantiene actualización)
             st.rerun()
 
         if st.button("🗑️ Limpiar chat"):
