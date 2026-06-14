@@ -13,6 +13,10 @@ st.set_page_config(
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# ==================== GENERATED CONTENT MEMORY ====================
+if "generated_content" not in st.session_state:
+    st.session_state.generated_content = ""
+
 # ==================== CSS ====================
 st.markdown("""
 <style>
@@ -115,6 +119,7 @@ with st.sidebar:
     st.success("✅ Content Generator Agent")
     st.success("✅ Technical Review Agent")
     st.success("✅ Monitoring Agent")
+    st.success("✅ Human Reviewer")  # <-- AGENTE HUMANO AGREGADO
 
 # ==================== INPUTS ====================
 st.markdown("## 🧱 Business Input Panel")
@@ -163,10 +168,41 @@ if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
 
     try:
         response = model.generate_content(prompt)
-        st.write(response.text)
+        generated_content = response.text
+        st.session_state.generated_content = generated_content
+        st.write(generated_content)
     except Exception as e:
         st.error(e)
+        st.stop()
 
+    # ==================== HUMAN REVIEW SECTION ====================
+    st.markdown("## 👨‍💼 Human Review & Approval")
+
+    approval = st.radio(
+        "Estado de revisión del contenido",
+        [
+            "⏳ Pendiente de revisión",
+            "✅ Aprobado para publicación",
+            "❌ Rechazado"
+        ],
+        horizontal=True
+    )
+
+    review_notes = st.text_area(
+        "Observaciones del revisor",
+        placeholder="Ingrese comentarios, correcciones o recomendaciones..."
+    )
+
+    if approval == "✅ Aprobado para publicación":
+        st.success("Contenido aprobado para ser incorporado al sitio web.")
+
+    elif approval == "❌ Rechazado":
+        st.error("Contenido rechazado. Requiere modificaciones antes de publicarse.")
+
+    else:
+        st.warning("Esperando validación humana.")
+
+    # ==================== METRICS DASHBOARD ====================
     seo_score = random.randint(75, 98)
     ctr = round(random.uniform(2.5, 8.5), 2)
     visits = random.randint(800, 5000)
