@@ -9,234 +9,217 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CHAT MEMORY ====================
+# ==================== MEMORY ====================
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+if "generated_content" not in st.session_state:
+    st.session_state.generated_content = ""
 
 # ==================== CSS ====================
 st.markdown("""
 <style>
 
-    /* ===== HERO (MITAD PANTALLA) ===== */
-    .hero {
-        height: 45vh;
-        background: url("https://riobrancoperu.com.pe/wp-content/uploads/2015/01/construccion-1100x420.jpg");
-        background-size: cover;
-        background-position: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        border-radius: 0 0 25px 25px;
-        overflow: hidden;
-    }
+.hero {
+    height: 40vh;
+    background: url("https://riobrancoperu.com.pe/wp-content/uploads/2015/01/construccion-1100x420.jpg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 0 25px 25px;
+    position: relative;
+}
 
-    .hero::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.55);
-    }
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+}
 
-    .hero h1, .hero p {
-        position: relative;
-        z-index: 1;
-        color: white !important;
-        text-align: center;
-    }
+.hero h1, .hero p {
+    position: relative;
+    color: white !important;
+}
 
-    /* ===== TEXTO GENERAL AZUL OSCURO ===== */
-    h1, h2, h3, p, label {
-        color: #0b2a4a !important;
-    }
+.bento {
+    background: rgba(255,255,255,0.85);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    margin: 10px 0;
+}
 
-    /* ===== BENTO CARDS ===== */
-    .bento-card {
-        background: rgba(255,255,255,0.88);
-        border-radius: 20px;
-        padding: 1.5rem;
-        margin: 0.5rem 0;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        border: 1px solid rgba(0,0,0,0.05);
-    }
-
-    .section-container {
-        background: rgba(255,255,255,0.7);
-        border-radius: 25px;
-        padding: 1rem;
-        margin: 1rem 0;
-        backdrop-filter: blur(10px);
-    }
-
-    /* BOTÓN */
-    .stButton > button {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 30px;
-        width: 100%;
-    }
+.stButton > button {
+    width: 100%;
+    border-radius: 25px;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    color: white;
+}
 
 </style>
 """, unsafe_allow_html=True)
 
 # ==================== GEMINI ====================
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-try:
-    model = genai.GenerativeModel("models/gemini-2.5-flash")
-except:
-    try:
-        model = genai.GenerativeModel("models/gemini-2.5-pro")
-    except:
-        model = genai.GenerativeModel("gemini-2.5-flash-latest")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 # ==================== HERO ====================
 st.markdown("""
 <div class="hero">
     <div>
-        <h1>🏗️ SEO Multi-Agent Optimization Platform</h1>
-        <p>Intelligent SEO Optimization for Construction SMEs</p>
+        <h1>🏗️ SEO Multi-Agent Platform</h1>
+        <p>AI SEO Optimization System</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ==================== SIDEBAR ====================
-with st.sidebar:
-    st.header("🤖 AI Agents")
-    st.success("✅ Orchestrator Agent")
-    st.success("✅ SEO Diagnostic Agent")
-    st.success("✅ Context Analysis Agent")
-    st.success("✅ Prompt Generator Agent")
-    st.success("✅ Content Generator Agent")
-    st.success("✅ Technical Review Agent")
-    st.success("✅ Monitoring Agent")
+# ==================== LAYOUT 3 COLUMNAS ====================
+left_col, main_col, right_col = st.columns([1.2, 3.5, 1.3])
 
-# ==================== INPUTS ====================
-st.markdown("## 🧱 Business Input Panel")
+# ==================== LEFT: AI AGENTS ====================
+with left_col:
+    with st.expander("🤖 AI Agents", expanded=False):
 
-col1, col2 = st.columns(2)
+        st.success("Orchestrator Agent")
+        st.success("SEO Diagnostic Agent")
+        st.success("Context Analysis Agent")
+        st.success("Prompt Generator Agent")
+        st.success("Content Generator Agent")
+        st.success("Technical Review Agent")
+        st.success("Monitoring Agent")
+        st.success("Human Reviewer")
 
-with col1:
-    company = st.text_input("🏢 Empresa")
-    city = st.text_input("📍 Ciudad")
+# ==================== MAIN ====================
+with main_col:
 
-with col2:
-    service = st.text_input("🛠️ Servicio")
-    url = st.text_input("🌐 Web")
+    st.markdown("## 🧱 Business Input")
 
-# ==================== ANALYSIS ====================
-if st.button("🚀 Run AI SEO Analysis", use_container_width=True):
+    col1, col2 = st.columns(2)
 
-    if not company or not service or not city:
-        st.error("Completa los campos")
-        st.stop()
+    with col1:
+        company = st.text_input("Empresa")
+        city = st.text_input("Ciudad")
 
-    st.markdown("## 🔍 SEO Analysis")
+    with col2:
+        service = st.text_input("Servicio")
+        url = st.text_input("Web")
 
-    st.warning("Missing meta description")
-    st.warning("Low content length")
-    st.warning("Missing structured data")
+    if st.button("🚀 Run AI SEO Analysis"):
 
-    st.markdown("## 📈 Keywords")
+        if not company or not service or not city:
+            st.error("Completa todos los campos")
+            st.stop()
 
-    st.info(f"{service} {city}")
-    st.info(f"best {service} {city}")
-    st.info(f"{service} near me")
+        st.markdown("## 🔍 SEO Analysis")
 
-    prompt = f"""
-    SEO expert.
+        st.warning("Missing meta description")
+        st.warning("Low content length")
+        st.warning("Missing structured data")
 
-    Empresa: {company}
-    Servicio: {service}
-    Ciudad: {city}
-    Web: {url}
+        st.markdown("## 📈 Keywords")
 
-    Genera SEO completo.
-    """
+        st.info(f"{service} {city}")
+        st.info(f"best {service} {city}")
+        st.info(f"{service} near me")
 
-    st.markdown("## 🤖 AI Content")
-
-    try:
-        response = model.generate_content(prompt)
-        st.write(response.text)
-    except Exception as e:
-        st.error(e)
-
-    seo_score = random.randint(75, 98)
-    ctr = round(random.uniform(2.5, 8.5), 2)
-    visits = random.randint(800, 5000)
-    conversion = round(visits * (ctr / 100))
-
-    st.markdown("## 📊 Dashboard")
-
-    c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
-        st.metric("SEO Score", seo_score)
-
-    with c2:
-        st.metric("CTR", f"{ctr}%")
-
-    with c3:
-        st.metric("Visits", visits)
-
-    with c4:
-        st.metric("Conversions", conversion)
-
-else:
-    st.info("Completa los datos para empezar")
-
-# ==================== SEO ASSISTANT ====================
-
-with st.expander("💬 SEO Assistant", expanded=True):
-
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.write(msg["content"])
-
-    user_input = st.chat_input("Pregunta al SEO Assistant...")
-
-    if user_input:
-
-        st.session_state.messages.append(
-            {"role": "user", "content": user_input}
-        )
-
-        with st.chat_message("user"):
-            st.write(user_input)
-
-        chat_prompt = f"""
-        Eres experto SEO.
+        prompt = f"""
+        SEO expert.
 
         Empresa: {company}
         Servicio: {service}
         Ciudad: {city}
+        Web: {url}
 
-        Pregunta:
-        {user_input}
+        Genera SEO completo profesional.
         """
 
         try:
+            response = model.generate_content(prompt)
+            st.session_state.generated_content = response.text
+
+            st.markdown("## 🤖 AI Content")
+            st.write(response.text)
+
+        except Exception as e:
+            st.error(e)
+            st.stop()
+
+        # ================= HUMAN REVIEW =================
+        st.markdown("## 👨‍💼 Human Review")
+
+        approval = st.radio(
+            "Estado",
+            ["Pendiente", "Aprobado", "Rechazado"],
+            horizontal=True
+        )
+
+        notes = st.text_area("Comentarios")
+
+        if approval == "Aprobado":
+            st.success("Contenido aprobado")
+        elif approval == "Rechazado":
+            st.error("Contenido rechazado")
+        else:
+            st.warning("Esperando revisión")
+
+        # ================= DASHBOARD =================
+        st.markdown("## 📊 Dashboard")
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            st.metric("SEO Score", random.randint(75, 98))
+        with c2:
+            st.metric("CTR", f"{round(random.uniform(2,8),2)}%")
+        with c3:
+            st.metric("Visits", random.randint(1000,5000))
+
+# ==================== RIGHT: CHAT ====================
+with right_col:
+
+    with st.expander("💬 SEO Assistant", expanded=True):
+
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                st.write(msg["content"])
+
+        user_input = st.chat_input("Pregunta al SEO Assistant...")
+
+        if user_input:
+
+            st.session_state.messages.append({
+                "role": "user",
+                "content": user_input
+            })
+
+            chat_prompt = f"""
+            Eres experto SEO.
+
+            Empresa: {company}
+            Servicio: {service}
+            Ciudad: {city}
+
+            Contexto:
+            {st.session_state.generated_content}
+
+            Pregunta:
+            {user_input}
+            """
+
             response = model.generate_content(chat_prompt)
             bot_response = response.text
 
-        except Exception as e:
-            bot_response = str(e)
-
-        st.session_state.messages.append(
-            {
+            st.session_state.messages.append({
                 "role": "assistant",
                 "content": bot_response
-            }
-        )
+            })
 
-        st.rerun()
+            st.rerun()
 
-    if st.button("🗑️ Limpiar chat"):
-        st.session_state.messages = []
-        st.rerun()
+        if st.button("🗑️ Limpiar chat"):
+            st.session_state.messages = []
+            st.rerun()
